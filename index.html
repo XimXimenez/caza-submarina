@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caza Submarina</title>
+	
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TFREZYFBWM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TFREZYFBWM');
+</script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #gameContent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        h1 {
+            margin: 0 0 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: #4CAF50;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .info-item {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .game-container {
+            position: relative;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        canvas {
+            border: 3px solid #4CAF50;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #0f4c75, #3282b8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            z-index: 100;
+            border: 3px solid #ff4444;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .leaderboard {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            z-index: 100;
+            border: 3px solid #4CAF50;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .leaderboard-table th {
+            background: rgba(76, 175, 80, 0.3);
+            font-weight: bold;
+        }
+
+        .current-player {
+            background: rgba(255, 215, 0, 0.2);
+            font-weight: bold;
+        }
+
+        .name-input {
+            margin: 20px 0;
+        }
+
+        .name-input input {
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            margin: 0 10px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .game-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0;
+            transition: background 0.3s;
+        }
+
+        .game-button:hover {
+            background: #45a049;
+        }
+
+        .secondary-button {
+            background: #2196F3;
+        }
+
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.85), rgba(42, 82, 152, 0.85));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+        }
+
+        .welcome-content {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 50px;
+            border-radius: 20px;
+            border: 3px solid #4CAF50;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+        }
+
+        .welcome-title {
+            font-size: 2.8em;
+            margin: 0 0 15px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            color: #4CAF50;
+        }
+
+        .welcome-author {
+            font-size: 1.2em;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+        }
+
+        .welcome-instructions {
+            font-size: 1.3em;
+            margin: 30px 0;
+            line-height: 1.6;
+        }
+
+        .welcome-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .welcome-button {
+            padding: 20px 40px;
+            font-size: 1.4em;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .start-button:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .leaderboard-button {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .leaderboard-button:hover {
+            background: linear-gradient(45deg, #1976D2, #2196F3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.6);
+        }
+
+        .game-background {
+            filter: blur(3px);
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Pantalla de bienvenida -->
+    <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-content">
+            <h1 class="welcome-title">🌊 CAZA SUBMARINA 🐠</h1>
+            <div class="welcome-author">por Eduardo Abel Gimenez</div>
+            
+            <div class="welcome-instructions">
+                🎮 Usá las flechas del teclado para moverte.<br>Mantenete quieto en un sector para buscar tesoros.<br>¡Cuidado con el monstruo marino! 🎮
+            </div>
+            
+            <div class="welcome-buttons">
+                <button class="welcome-button start-button" onclick="startGameFromWelcome()">
+                    🤿 Comenzar Juego
+                </button>
+                <button class="welcome-button leaderboard-button" onclick="showLeaderboardFromWelcome()">
+                    📊 Ver Leaderboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal del juego -->
+    <div id="gameContent" class="game-background">
+        <h1>🌊 CAZA SUBMARINA 🐠</h1>
+        
+        <div class="game-info">
+            <div class="info-item">💯 Puntaje: <span id="score">0</span></div>
+            <div class="info-item">❤️ Vidas: <span id="lives">3</span></div>
+            <div class="info-item">🏆 Nivel: <span id="level">1</span></div>
+            <div class="info-item">💎 Tesoros: <span id="treasures">0</span>/20</div>
+            <button class="game-button" onclick="newGame()" style="padding: 6px 12px; font-size: 1em;">
+                🔄 Juego Nuevo
+            </button>
+            <button class="game-button secondary-button" onclick="showLeaderboard()" style="padding: 6px 12px; font-size: 1em;">
+                📊 Leaderboard
+            </button>
+        </div>
+
+        <div class="game-container">
+            <canvas id="gameCanvas" width="750" height="600"></canvas>
+        </div>
+
+        <div class="controls">
+            🎮 Usá las flechas del teclado para moverte. Mantenete quieto en un sector para buscar tesoros.<br>¡Cuidado con el monstruo marino! 🎮
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Constantes del juego
+        const BOARD_WIDTH = 25;
+        const BOARD_HEIGHT = 20;
+        const CELL_SIZE = 30;
+        const SECTOR_SIZE = 5;
+        const SECTORS_X = 5;
+        const SECTORS_Y = 4;
+        
+        // Estado del juego
+        let gameState = {
+            player: { x: 0, y: 0 },
+            monster: { x: BOARD_WIDTH - 1, y: BOARD_HEIGHT - 1 },
+            score: 0,
+            lives: 3,
+            level: 1,
+            treasuresFound: 0,
+            treasures: [],
+            playerMoving: false,
+            currentSector: null,
+            diggingDepth: 0,
+            diggingInterval: null,
+            monsterSpeed: 800,
+            monsterInterval: null,
+            gameOver: false,
+            levelComplete: false,
+            dramaticEffect: false,
+            treasureJustFound: false,
+            gameStarted: false
+        };
+
+        // Teclas presionadas
+        const keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        };
+
+        // Sistema de Leaderboard
+        let leaderboard = [];
+        const LEADERBOARD_SIZE = 100;
+        const LEADERBOARD_URL = 'leaderboard.php';
+
+        // Cargar leaderboard
+        async function loadLeaderboard() {
+            try {
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    if (leaderboard.length === 0) {
+                        leaderboard = [
+                            { name: "Capitán Nemo", score: 850, level: 8 },
+                            { name: "Explorador", score: 720, level: 6 },
+                            { name: "Submarinista", score: 650, level: 5 },
+                            { name: "Cazador", score: 580, level: 5 },
+                            { name: "Aventurero", score: 490, level: 4 }
+                        ];
+                    }
+                    return;
+                }
+
+                const response = await fetch(LEADERBOARD_URL + '?action=get');
+                const data = await response.json();
+                leaderboard = data.leaderboard || [];
+            } catch (error) {
+                console.log('Error cargando leaderboard:', error);
+                leaderboard = [];
+            }
+        }
+
+        // Guardar puntaje en leaderboard
+        async function saveScore(playerName, score, level) {
+            const newEntry = {
+                name: playerName.trim().substring(0, 20) || 'Anónimo',
+                score: score,
+                level: level,
+                date: new Date().toISOString()
+            };
+
+            try {
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    leaderboard.push(newEntry);
+                    leaderboard.sort((a, b) => b.score - a.score);
+                    leaderboard = leaderboard.slice(0, LEADERBOARD_SIZE);
+                    return newEntry;
+                }
+
+                const response = await fetch(LEADERBOARD_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'save',
+                        ...newEntry
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    leaderboard = data.leaderboard || [];
+                    return newEntry;
+                }
+            } catch (error) {
+                console.log('Error guardando puntaje:', error);
+                leaderboard.push(newEntry);
+                leaderboard.sort((a, b) => b.score - a.score);
+                leaderboard = leaderboard.slice(0, LEADERBOARD_SIZE);
+                return newEntry;
+            }
+        }
+
+        // Mostrar leaderboard
+        function showLeaderboard(currentPlayerEntry = null) {
+            const leaderboardDiv = document.createElement('div');
+            leaderboardDiv.className = 'leaderboard';
+            
+            let tableHTML = `
+                <h2>🏆 LEADERBOARD GLOBAL 🏆</h2>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Jugador</th>
+                            <th>Puntaje</th>
+                            <th>Nivel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            const displayBoard = leaderboard.slice(0, LEADERBOARD_SIZE);
+            displayBoard.forEach((entry, index) => {
+                const isCurrentPlayer = currentPlayerEntry && 
+                    entry.name === currentPlayerEntry.name && 
+                    entry.score === currentPlayerEntry.score;
+                
+                const rowClass = isCurrentPlayer ? 'current-player' : '';
+                
+                tableHTML += `
+                    <tr class="${rowClass}">
+                        <td>${index + 1}</td>
+                        <td>${entry.name}</td>
+                        <td>${entry.score}</td>
+                        <td>${entry.level}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+                <button class="game-button" onclick="closeLeaderboard()">Cerrar</button>
+                <button class="game-button secondary-button" onclick="location.reload()">Nuevo Juego</button>
+            `;
+
+            leaderboardDiv.innerHTML = tableHTML;
+            document.body.appendChild(leaderboardDiv);
+        }
+
+        // Cerrar leaderboard
+        function closeLeaderboard() {
+            const leaderboardDiv = document.querySelector('.leaderboard');
+            if (leaderboardDiv) {
+                leaderboardDiv.remove();
+            }
+        }
+
+        // Mostrar formulario de nombre
+        function showNameInput(score, level) {
+            const nameInputDiv = document.createElement('div');
+            nameInputDiv.className = 'game-over';
+            nameInputDiv.innerHTML = `
+                <h2>🌊 GAME OVER 🌊</h2>
+                <p>¡Increíble puntuación!</p>
+                <p><strong>Puntaje Final: ${score}</strong></p>
+                <p><strong>Nivel Alcanzado: ${level}</strong></p>
+                
+                <div class="name-input">
+                    <label for="playerName">Ingresa tu nombre para el leaderboard:</label><br>
+                    <input type="text" id="playerName" maxlength="20" placeholder="Tu nombre" 
+                           onkeypress="if(event.key==='Enter') submitScore()">
+                </div>
+                
+                <button class="game-button" onclick="submitScore()">Guardar Puntaje</button>
+                <button class="game-button secondary-button" onclick="skipLeaderboard()">Saltar</button>
+            `;
+            document.body.appendChild(nameInputDiv);
+            
+            setTimeout(() => {
+                document.getElementById('playerName').focus();
+            }, 100);
+        }
+
+        // Enviar puntaje
+        async function submitScore() {
+            const nameInput = document.getElementById('playerName');
+            const playerName = nameInput ? nameInput.value : '';
+            
+            const gameOverDiv = document.querySelector('.game-over');
+            if (gameOverDiv) {
+                gameOverDiv.remove();
+            }
+            
+            const savedEntry = await saveScore(playerName, gameState.score, gameState.level);
+            showLeaderboard(savedEntry);
+        }
+
+        // Saltar leaderboard
+        function skipLeaderboard() {
+            const gameOverDiv = document.querySelector('.game-over');
+            if (gameOverDiv) {
+                gameOverDiv.remove();
+            }
+            showLeaderboard();
+        }
+
+        // Funciones de la pantalla de bienvenida
+        function startGameFromWelcome() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            const gameContent = document.getElementById('gameContent');
+            gameContent.classList.remove('game-background');
+            gameState.gameStarted = true;
+            initGameFirstTime();
+        }
+
+        async function showLeaderboardFromWelcome() {
+            await loadLeaderboard();
+            showLeaderboard();
+        }
+
+        // Función para inicializar el juego por primera vez
+        async function initGameFirstTime() {
+            await loadLeaderboard();
+            
+            // Resetear estado completamente, igual que hace newGame()
+            gameState.treasures = [];
+            gameState.treasuresFound = 0;
+            gameState.currentSector = null;
+            gameState.diggingDepth = 0;
+            gameState.diggingInterval = null;
+            gameState.treasureJustFound = false;
+            
+            initGame();
+            render();
+        }
+
+        // Función para iniciar juego nuevo
+        function newGame() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            if (welcomeScreen) {
+                welcomeScreen.style.display = 'none';
+            }
+            
+            const gameContent = document.getElementById('gameContent');
+            gameContent.classList.remove('game-background');
+            
+            clearInterval(gameState.monsterInterval);
+            stopDigging();
+            
+            const gameOverDiv = document.querySelector('.game-over');
+            const leaderboardDiv = document.querySelector('.leaderboard');
+            if (gameOverDiv) gameOverDiv.remove();
+            if (leaderboardDiv) leaderboardDiv.remove();
+            
+            gameState = {
+                player: { x: 0, y: 0 },
+                monster: { x: BOARD_WIDTH - 1, y: BOARD_HEIGHT - 1 },
+                score: 0,
+                lives: 3,
+                level: 1,
+                treasuresFound: 0,
+                treasures: [],
+                playerMoving: false,
+                currentSector: null,
+                diggingDepth: 0,
+                diggingInterval: null,
+                monsterSpeed: 800,
+                monsterInterval: null,
+                gameOver: false,
+                levelComplete: false,
+                dramaticEffect: false,
+                treasureJustFound: false,
+                gameStarted: true
+            };
+            
+            Object.keys(keys).forEach(key => {
+                keys[key] = false;
+            });
+            
+            initGame();
+        }
+
+        // Inicializar juego
+        function initGame() {
+            gameState.treasures = [];
+            gameState.treasuresFound = 0;
+            
+            for (let sectorX = 0; sectorX < SECTORS_X; sectorX++) {
+                for (let sectorY = 0; sectorY < SECTORS_Y; sectorY++) {
+                    gameState.treasures.push({
+                        sectorX: sectorX,
+                        sectorY: sectorY,
+                        depth: Math.floor(Math.random() * 5) + 5,
+                        found: false
+                    });
+                }
+            }
+            
+            updateUI();
+            startMonsterMovement();
+        }
+
+        // Actualizar interfaz
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('lives').textContent = gameState.lives;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('treasures').textContent = gameState.treasuresFound;
+        }
+
+        // Obtener sector actual del jugador
+        function getCurrentSector() {
+            const sectorX = Math.floor(gameState.player.x / SECTOR_SIZE);
+            const sectorY = Math.floor(gameState.player.y / SECTOR_SIZE);
+            return { x: sectorX, y: sectorY };
+        }
+
+        // Buscar tesoro en sector
+        function findTreasureInSector(sectorX, sectorY) {
+            return gameState.treasures.find(t => 
+                t.sectorX === sectorX && t.sectorY === sectorY && !t.found
+            );
+        }
+
+        // Movimiento del jugador
+        function movePlayer(dx, dy) {
+            const newX = gameState.player.x + dx;
+            const newY = gameState.player.y + dy;
+            
+            if (newX >= 0 && newX < BOARD_WIDTH && newY >= 0 && newY < BOARD_HEIGHT) {
+                gameState.player.x = newX;
+                gameState.player.y = newY;
+                gameState.playerMoving = true;
+                stopDigging();
+            }
+        }
+
+        // Detener excavación
+        function stopDigging() {
+            if (gameState.diggingInterval) {
+                clearInterval(gameState.diggingInterval);
+                gameState.diggingInterval = null;
+                gameState.diggingDepth = 0;
+                gameState.currentSector = null;
+            }
+        }
+
+        // Iniciar excavación
+        function startDigging() {
+            if (gameState.diggingInterval || gameState.treasureJustFound) return;
+            
+            const sector = getCurrentSector();
+            const treasure = findTreasureInSector(sector.x, sector.y);
+            
+            if (!treasure) return;
+            
+            gameState.currentSector = sector;
+            gameState.diggingDepth = 0;
+            
+            gameState.diggingInterval = setInterval(() => {
+                gameState.diggingDepth++;
+                
+                if (gameState.diggingDepth === treasure.depth) {
+                    treasure.found = true;
+                    gameState.score += treasure.depth;
+                    gameState.treasuresFound++;
+                    gameState.treasureJustFound = true;
+                    
+                    // Detener inmediatamente el interval para evitar que siga incrementando
+                    clearInterval(gameState.diggingInterval);
+                    gameState.diggingInterval = null;
+                    
+                    setTimeout(() => {
+                        gameState.currentSector = null;
+                        gameState.diggingDepth = 0;
+                        gameState.treasureJustFound = false;
+                        checkLevelComplete();
+                    }, 1000);
+                    
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        // Verificar si el nivel está completo
+        function checkLevelComplete() {
+            if (gameState.treasuresFound === 20) {
+                gameState.levelComplete = true;
+                clearInterval(gameState.monsterInterval);
+                
+                setTimeout(() => {
+                    nextLevel();
+                }, 2000);
+            }
+        }
+
+        // Siguiente nivel
+        function nextLevel() {
+            gameState.level++;
+            gameState.monsterSpeed *= 0.95;
+            gameState.player = { x: 0, y: 0 };
+            gameState.monster = { x: BOARD_WIDTH - 1, y: BOARD_HEIGHT - 1 };
+            gameState.levelComplete = false;
+            
+            initGame();
+        }
+
+        // Movimiento del monstruo
+        function moveMonster() {
+            if (gameState.gameOver || gameState.levelComplete || gameState.dramaticEffect) return;
+            
+            const dx = gameState.player.x - gameState.monster.x;
+            const dy = gameState.player.y - gameState.monster.y;
+            
+            let moveX = 0, moveY = 0;
+            
+            // Nueva lógica: monstruo más inteligente
+            const sameRow = (dy === 0); // Misma fila
+            const sameColumn = (dx === 0); // Misma columna
+            
+            if (sameRow && !sameColumn) {
+                // Están en la misma fila: 75% hacia el jugador, 25% al costado
+                if (Math.random() < 0.75) {
+                    // Moverse horizontalmente hacia el jugador
+                    moveX = dx > 0 ? 1 : -1;
+                } else {
+                    // Moverse verticalmente (al costado)
+                    moveY = Math.random() < 0.5 ? 1 : -1;
+                }
+            } else if (sameColumn && !sameRow) {
+                // Están en la misma columna: 75% hacia el jugador, 25% al costado
+                if (Math.random() < 0.75) {
+                    // Moverse verticalmente hacia el jugador
+                    moveY = dy > 0 ? 1 : -1;
+                } else {
+                    // Moverse horizontalmente (al costado)
+                    moveX = Math.random() < 0.5 ? 1 : -1;
+                }
+            } else {
+                // NO están en la misma fila ni columna: 50/50 como antes
+                if (Math.random() < 0.5) {
+                    // Movimiento horizontal
+                    if (dx !== 0) {
+                        moveX = dx > 0 ? 1 : -1;
+                    } else {
+                        moveX = Math.random() < 0.5 ? 1 : -1;
+                    }
+                } else {
+                    // Movimiento vertical
+                    if (dy !== 0) {
+                        moveY = dy > 0 ? 1 : -1;
+                    } else {
+                        moveY = Math.random() < 0.5 ? 1 : -1;
+                    }
+                }
+            }
+            
+            // Verificar límites y invertir dirección si está en un borde
+            if (gameState.monster.x + moveX < 0) {
+                moveX = 1; // Si quiere ir hacia la izquierda pero está en el borde, ir hacia la derecha
+            } else if (gameState.monster.x + moveX >= BOARD_WIDTH) {
+                moveX = -1; // Si quiere ir hacia la derecha pero está en el borde, ir hacia la izquierda
+            }
+            
+            if (gameState.monster.y + moveY < 0) {
+                moveY = 1; // Si quiere ir hacia arriba pero está en el borde, ir hacia abajo
+            } else if (gameState.monster.y + moveY >= BOARD_HEIGHT) {
+                moveY = -1; // Si quiere ir hacia abajo pero está en el borde, ir hacia arriba
+            }
+            
+            // Aplicar movimiento (ahora ya corregido)
+            gameState.monster.x += moveX;
+            gameState.monster.y += moveY;
+            
+            if (gameState.monster.x === gameState.player.x && 
+                gameState.monster.y === gameState.player.y) {
+                playerCaught();
+            }
+        }
+
+        // Jugador atrapado
+        function playerCaught() {
+            gameState.dramaticEffect = true;
+            stopDigging();
+            
+            // Pausa dramática de 1 segundo
+            setTimeout(() => {
+                gameState.dramaticEffect = false;
+                
+                // Actualizar vidas
+                gameState.lives--;
+                updateUI();
+                
+                if (gameState.lives <= 0) {
+                    gameOver();
+                } else {
+                    // Resetear posiciones
+                    gameState.player = { x: 0, y: 0 };
+                    gameState.monster = { x: BOARD_WIDTH - 1, y: BOARD_HEIGHT - 1 };
+                }
+            }, 1000); // 1 segundo
+        }
+
+        // Game Over
+        function gameOver() {
+            gameState.gameOver = true;
+            clearInterval(gameState.monsterInterval);
+            stopDigging();
+            
+            showNameInput(gameState.score, gameState.level);
+        }
+
+        // Iniciar movimiento del monstruo
+        function startMonsterMovement() {
+            clearInterval(gameState.monsterInterval);
+            gameState.monsterInterval = setInterval(moveMonster, gameState.monsterSpeed);
+        }
+
+        // Eventos de teclado
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.gameStarted || gameState.gameOver || gameState.dramaticEffect) return;
+            
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                e.preventDefault();
+                
+                if (!keys[e.code]) {
+                    keys[e.code] = true;
+                    
+                    switch(e.code) {
+                        case 'ArrowUp': movePlayer(0, -1); break;
+                        case 'ArrowDown': movePlayer(0, 1); break;
+                        case 'ArrowLeft': movePlayer(-1, 0); break;
+                        case 'ArrowRight': movePlayer(1, 0); break;
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (!gameState.gameStarted) return;
+            
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                keys[e.code] = false;
+                
+                const anyKeyPressed = Object.values(keys).some(pressed => pressed);
+                if (!anyKeyPressed) {
+                    gameState.playerMoving = false;
+                    
+                    setTimeout(() => {
+                        if (!gameState.playerMoving && !gameState.dramaticEffect) {
+                            startDigging();
+                        }
+                    }, 200);
+                }
+            }
+        });
+
+        // Movimiento continuo cuando se mantiene presionada una tecla
+        setInterval(() => {
+            if (!gameState.gameStarted || gameState.gameOver || gameState.dramaticEffect) return;
+            
+            let moved = false;
+            if (keys.ArrowUp) { movePlayer(0, -1); moved = true; }
+            else if (keys.ArrowDown) { movePlayer(0, 1); moved = true; }
+            else if (keys.ArrowLeft) { movePlayer(-1, 0); moved = true; }
+            else if (keys.ArrowRight) { movePlayer(1, 0); moved = true; }
+            
+            gameState.playerMoving = moved;
+        }, 500);
+
+        // Verificar constantemente si el jugador está quieto para iniciar excavación
+        setInterval(() => {
+            if (!gameState.gameStarted || gameState.gameOver || gameState.levelComplete || gameState.dramaticEffect || gameState.treasureJustFound) return;
+            
+            if (!gameState.playerMoving && !gameState.diggingInterval) {
+                startDigging();
+            }
+        }, 300);
+
+        // Renderizado
+        function render() {
+            ctx.fillStyle = '#0f4c75';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#4CAF50';
+            ctx.lineWidth = 2;
+            for (let i = 0; i <= SECTORS_X; i++) {
+                const x = i * SECTOR_SIZE * CELL_SIZE;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= SECTORS_Y; i++) {
+                const y = i * SECTOR_SIZE * CELL_SIZE;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < BOARD_WIDTH; x++) {
+                for (let y = 0; y < BOARD_HEIGHT; y++) {
+                    ctx.strokeRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
+            }
+            
+            gameState.treasures.forEach(treasure => {
+                if (treasure.found) {
+                    const centerX = (treasure.sectorX * SECTOR_SIZE + 2.5) * CELL_SIZE;
+                    const centerY = (treasure.sectorY * SECTOR_SIZE + 2.5) * CELL_SIZE;
+                    
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = 'bold 48px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('💎', centerX, centerY + 15);
+                }
+            });
+            
+            if (gameState.currentSector && gameState.diggingDepth > 0) {
+                const centerX = (gameState.currentSector.x * SECTOR_SIZE + 2.5) * CELL_SIZE;
+                const centerY = (gameState.currentSector.y * SECTOR_SIZE + 2.5) * CELL_SIZE;
+                
+                const treasure = findTreasureInSector(gameState.currentSector.x, gameState.currentSector.y);
+                const isFound = treasure && gameState.diggingDepth === treasure.depth;
+                
+                ctx.fillStyle = isFound ? '#FFD700' : '#FFFFFF';
+                ctx.font = 'bold 48px Arial';
+                ctx.textAlign = 'center';
+                if (isFound) {
+                    ctx.shadowColor = '#FFD700';
+                    ctx.shadowBlur = 20;
+                    ctx.fillText('💎', centerX, centerY + 15);
+                } else {
+                    ctx.fillText(gameState.diggingDepth.toString(), centerX, centerY + 15);
+                }
+                ctx.shadowBlur = 0;
+            }
+            
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(
+                gameState.player.x * CELL_SIZE + 5,
+                gameState.player.y * CELL_SIZE + 5,
+                CELL_SIZE - 10,
+                CELL_SIZE - 10
+            );
+            
+            ctx.fillStyle = '#FF4444';
+            ctx.fillRect(
+                gameState.monster.x * CELL_SIZE + 5,
+                gameState.monster.y * CELL_SIZE + 5,
+                CELL_SIZE - 10,
+                CELL_SIZE - 10
+            );
+            
+            if (gameState.levelComplete) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#4CAF50';
+                ctx.font = 'bold 36px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('¡NIVEL COMPLETO!', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.fillText('Preparando siguiente nivel...', canvas.width / 2, canvas.height / 2 + 30);
+            }
+            
+            requestAnimationFrame(render);
+        }
+
+        // Inicializar cuando cargue la página
+        window.addEventListener('load', () => {
+            // Solo empezar a renderizar, no crear tesoros todavía
+            render();
+        });
+    </script>
+</body>
+</html>
